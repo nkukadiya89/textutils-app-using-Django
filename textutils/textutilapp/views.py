@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.shortcuts import render
+from django.template import RequestContext
 # Create your views here.
 
 def index(request):
@@ -25,16 +26,21 @@ def charcount(request):
     return HttpResponse("charcount")
 
 def analyzer(request):
-    djtext = request.GET.get('djtext','default')
-    action = request.GET.get('option1')
+    djtext = request.POST.get('djtext','default')
+    action = request.POST.getlist('option')
     analyzed_text = ""
-    if action == "on":
-        punc = '''!"#$%&'()*+, -./:;<=>?@[\]^_`{|}~'''
-        for tex in djtext:
-            print(tex)
-            if tex not in punc: 
-                analyzed_text = analyzed_text + tex
-    
+    if len(action)> 0 :
+        for ac in action:
+            if ac == "Remove punctuation":
+                punc = '''!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~'''
+                for tex in djtext:
+                    if tex not in punc: 
+                        analyzed_text = analyzed_text + tex
+            elif ac == "Capitalized First":
+                 analyzed_text = analyzed_text.capitalize() 
+            else:
+                pass     
         return render(request,'analyzer.html',{'analyzed_text':analyzed_text, 'action':action})
+    
     else:
         return HttpResponse("error")    
